@@ -1,0 +1,26 @@
+# Flask Web Framework
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Computer Vision and Machine Learning
+opencv-python==4.8.1.78
+ultralytics==8.0.196
+torch==2.0.1
+torchvision==0.15.2
+numpy==1.24.3
+
+# Image Processing
+Pillow==10.0.1
+
+# Data Processing
+pandas==2.0.3
+
+# Utilities
+python-dotenv==1.0.0
+
+# Development and Testing (optional)
+pytest==7.4.2
+pytest-flask==1.2.0
+
+# Production Server (optional)
+gunicorn==21.2.0

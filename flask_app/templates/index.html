@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Pose Tracking - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-video"></i> Live Pose Tracking</h4>
+            </div>
+            <div class="card-body">
+                <div class="video-container">
+                    <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Video Feed" class="img-fluid">
+                </div>
+                <div class="mt-3">
+                    <button id="start-btn" class="btn btn-success me-2">
+                        <i class="fas fa-play"></i> Start Tracking
+                    </button>
+                    <button id="stop-btn" class="btn btn-danger me-2" disabled>
+                        <i class="fas fa-stop"></i> Stop Tracking
+                    </button>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="leg-choice" id="left-leg" value="left" checked>
+                        <label class="btn btn-outline-primary" for="left-leg">
+                            <i class="fas fa-user"></i> Left Leg
+                        </label>
+                        <input type="radio" class="btn-check" name="leg-choice" id="right-leg" value="right">
+                        <label class="btn btn-outline-primary" for="right-leg">
+                            <i class="fas fa-user"></i> Right Leg
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> Angle Data</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="angle-display">
+                            <h6>Raw Angle</h6>
+                            <div id="raw-angle" class="angle-value">--°</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="angle-display">
+                            <h6>Stable Angle</h6>
+                            <div id="stable-angle" class="angle-value">--°</div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-grid gap-2">
+                    <button id="export-btn" class="btn btn-outline-primary">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="fas fa-upload"></i> Upload Image</h5>
+            </div>
+            <div class="card-body">
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" class="form-control" id="image-file" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-upload"></i> Process Image
+                    </button>
+                </form>
+                <div id="upload-result" class="mt-3" style="display: none;">
+                    <h6>Processed Image:</h6>
+                    <img id="processed-image" class="img-fluid" alt="Processed Image">
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Angle: <span id="upload-angle">--°</span> | 
+                            Stable: <span id="upload-stable">--°</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="status-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Global variables
+    let isTracking = false;
+    let angleUpdateInterval;
+
+    // DOM elements
+    const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const rawAngleDisplay = document.getElementById('raw-angle');
+    const stableAngleDisplay = document.getElementById('stable-angle');
+    const legRadios = document.querySelectorAll('input[name="leg-choice"]');
+    const exportBtn = document.getElementById('export-btn');
+    const uploadForm = document.getElementById('upload-form');
+    const uploadResult = document.getElementById('upload-result');
+    const statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+
+    // Event listeners
+    startBtn.addEventListener('click', startTracking);
+    stopBtn.addEventListener('click', stopTracking);
+    legRadios.forEach(radio => radio.addEventListener('change', changeLeg));
+    exportBtn.addEventListener('click', exportData);
+    uploadForm.addEventListener('submit', handleImageUpload);
+
+    // Functions
+    function startTracking() {
+        fetch('/start_tracking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                isTracking = true;
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                showStatus('Tracking started successfully!');
+                startAngleUpdates();
+            } else {
+                showStatus('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showStatus('Error starting tracking: ' + error, 'error');
+        });
+    }
+
+    function stopTracking() {
+        fetch('/stop_tracking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                isTracking = false;
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                showStatus('Tracking stopped.');
+                stopAngleUpdates();
+            } else {
+                showStatus('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showStatus('Error stopping tracking: ' + error, 'error');
+        });
+    }
+
+    function changeLeg() {
+        const selectedLeg = document.querySelector('input[name="leg-choice"]:checked').value;
+        
+        fetch('/set_leg', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ leg: selectedLeg })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showStatus(`Switched to ${selectedLeg} leg tracking.`);
+            } else {
+                showStatus('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showStatus('Error changing leg: ' + error, 'error');
+        });
+    }
+
+    function startAngleUpdates() {
+        angleUpdateInterval = setInterval(() => {
+            fetch('/get_angle')
+            .then(response => response.json())
+            .then(data => {
+                if (data.raw_angle !== null) {
+                    rawAngleDisplay.textContent = Math.round(data.raw_angle) + '°';
+                }
+                if (data.stable_angle !== null) {
+                    stableAngleDisplay.textContent = Math.round(data.stable_angle) + '°';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching angle data:', error);
+            });
+        }, 100); // Update every 100ms
+    }
+
+    function stopAngleUpdates() {
+        if (angleUpdateInterval) {
+            clearInterval(angleUpdateInterval);
+        }
+    }
+
+    function exportData() {
+        window.open('/export_data', '_blank');
+    }
+
+    function handleImageUpload(event) {
+        event.preventDefault();
+        
+        const formData = new FormData();
+        const fileInput = document.getElementById('image-file');
+        
+        if (fileInput.files.length === 0) {
+            showStatus('Please select an image file.', 'error');
+            return;
+        }
+        
+        formData.append('file', fileInput.files[0]);
+        
+        fetch('/upload_image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('processed-image').src = 'data:image/jpeg;base64,' + data.processed_image;
+                document.getElementById('upload-angle').textContent = Math.round(data.angle || 0) + '°';
+                document.getElementById('upload-stable').textContent = Math.round(data.stable_angle || 0) + '°';
+                uploadResult.style.display = 'block';
+                showStatus('Image processed successfully!');
+            } else {
+                showStatus('Error: ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showStatus('Error processing image: ' + error, 'error');
+        });
+    }
+
+    function showStatus(message, type = 'success') {
+        const statusMessage = document.getElementById('status-message');
+        statusMessage.innerHTML = `<div class="alert alert-${type === 'error' ? 'danger' : 'success'}">${message}</div>`;
+        statusModal.show();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if video feed is available
+        const videoFeed = document.getElementById('video-feed');
+        videoFeed.onerror = function() {
+            showStatus('Camera not available. Please check your camera permissions.', 'error');
+        };
+    });
+</script>
+{% endblock %}
