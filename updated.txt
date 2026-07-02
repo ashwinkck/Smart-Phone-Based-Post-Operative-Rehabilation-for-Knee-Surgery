@@ -2,4 +2,4 @@ range of movement
 limp alignment
 rotational alignment
 alert 
-ai voice generated voice for the scoring sysytem
+ai voice generated voice for the scoring system

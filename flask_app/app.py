@@ -120,13 +120,18 @@ def generate_frames():
     if not cap.isOpened():
         return
     
-    while is_tracking:
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
         
-        # Process frame
-        processed_frame = process_frame(frame)
+        if is_tracking:
+            # Process frame with YOLO model
+            processed_frame = process_frame(frame)
+        else:
+            # Just show the raw webcam frame
+            processed_frame = frame
+            
         latest_frame = processed_frame
         
         # Encode frame as JPEG

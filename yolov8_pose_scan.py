@@ -2,7 +2,7 @@ import cv2
 from ultralytics import YOLO
 
 # ---------------- CONFIG ----------------
-MODEL_PATH = r"C:\Users\ashwi\OneDrive\Desktop\Orthopedics\yolov8n-pose.pt"  # <-- change this to your model's full path
+MODEL_PATH = r"/home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/yolov8n-pose.pt"  # <-- change this to your model's full path
 CONFIDENCE_THRESHOLD = 0.5
 # ----------------------------------------
 
