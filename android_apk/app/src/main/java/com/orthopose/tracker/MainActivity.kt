@@ -17,6 +17,8 @@ import java.util.concurrent.Executors
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
+import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private var isTracking = false
     private var isFrontCamera = false
     private var isLeftLeg = true
+    private var sessionMaxFlexion = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +61,7 @@ class MainActivity : AppCompatActivity() {
             isTracking = true
             btnStart.isEnabled = false
             btnStop.isEnabled = true
+            sessionMaxFlexion = 0
             overlay.resetSmoothing()
         }
 
@@ -65,6 +69,23 @@ class MainActivity : AppCompatActivity() {
             isTracking = false
             btnStart.isEnabled = true
             btnStop.isEnabled = false
+            
+            if (sessionMaxFlexion > 0) {
+                val db = FirebaseFirestore.getInstance()
+                val session = hashMapOf(
+                    "patientId" to 1,
+                    "timestamp" to Date(),
+                    "maxFlexion" to "${sessionMaxFlexion}° Flexion"
+                )
+                db.collection("sessions").add(session)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Session saved to cloud!", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Failed to save session", Toast.LENGTH_SHORT).show()
+                    }
+            }
+
             overlay.clear()
             tvRawAngle.text = "--°"
             tvStableAngle.text = "--°"
@@ -123,6 +144,9 @@ class MainActivity : AppCompatActivity() {
                                 if (angles != null) {
                                     tvRawAngle.text = "${angles.first}°"
                                     tvStableAngle.text = "${angles.second}°"
+                                    if (angles.second > sessionMaxFlexion) {
+                                        sessionMaxFlexion = angles.second
+                                    }
                                 }
                             }
                         }

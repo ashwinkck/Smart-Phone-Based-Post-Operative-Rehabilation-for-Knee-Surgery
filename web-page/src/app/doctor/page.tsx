@@ -1,14 +1,33 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { db } from '../../lib/firebase';
+import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 
 const mockPatients = [
-  { id: 1, name: 'Ashwin K.', surgeryDate: '2026-06-15', status: 'On Track', lastSession: '146° Flexion', color: 'var(--neon-green)' },
-  { id: 2, name: 'Sarah M.', surgeryDate: '2026-06-02', status: 'Needs Review', lastSession: '85° Flexion', color: 'var(--neon-pink)' },
-  { id: 3, name: 'David R.', surgeryDate: '2026-05-20', status: 'Excellent', lastSession: '160° Flexion', color: 'var(--neon-green)' },
+  { id: 1, name: 'Ashwin K.', surgeryDate: '2026-06-15', status: 'On Track', color: 'var(--neon-green)' },
+  { id: 2, name: 'Sarah M.', surgeryDate: '2026-06-02', status: 'Needs Review', color: 'var(--neon-pink)' },
+  { id: 3, name: 'David R.', surgeryDate: '2026-05-20', status: 'Excellent', color: 'var(--neon-green)' },
 ];
 
 export default function DoctorDashboard() {
   const [selectedPatient, setSelectedPatient] = useState(mockPatients[0]);
+  const [sessions, setSessions] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Listen for new sessions in real-time
+    const q = query(collection(db, 'sessions'), orderBy('timestamp', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const sessionData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setSessions(sessionData);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const patientSessions = sessions.filter(s => s.patientId === selectedPatient.id);
+  const latestSession = patientSessions.length > 0 ? patientSessions[patientSessions.length - 1].maxFlexion : 'No Data Yet';
 
   return (
     <div className="container" style={{ padding: '2rem' }}>
@@ -58,24 +77,37 @@ export default function DoctorDashboard() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Latest Session Max Flexion</div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--neon-green)' }}>{selectedPatient.lastSession}</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--neon-green)' }}>{latestSession}</div>
             </div>
             
             <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Total Sessions</div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 700 }}>14</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 700 }}>{patientSessions.length}</div>
             </div>
           </div>
 
           <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border-glass)', height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', height: '150px', gap: '2rem', padding: '1rem' }}>
-              {/* Mock Bar Chart */}
-              <div style={{ width: '40px', height: '60%', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}></div>
-              <div style={{ width: '40px', height: '70%', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}></div>
-              <div style={{ width: '40px', height: '85%', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}></div>
-              <div style={{ width: '40px', height: '90%', background: 'var(--neon-green)', borderRadius: '4px', boxShadow: '0 0 15px rgba(0,255,170,0.3)' }}></div>
+              {/* Dynamic Bar Chart */}
+              {patientSessions.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)' }}>Waiting for first session...</p>
+              ) : (
+                patientSessions.slice(-7).map((s, idx) => {
+                  const flexionVal = parseInt(s.maxFlexion);
+                  const height = Math.min(100, Math.max(10, (flexionVal / 180) * 100));
+                  return (
+                    <div key={s.id} style={{ 
+                      width: '40px', 
+                      height: `${height}%`, 
+                      background: idx === patientSessions.slice(-7).length - 1 ? 'var(--neon-green)' : 'rgba(255,255,255,0.2)', 
+                      borderRadius: '4px',
+                      boxShadow: idx === patientSessions.slice(-7).length - 1 ? '0 0 15px rgba(0,255,170,0.3)' : 'none'
+                    }}></div>
+                  );
+                })
+              )}
             </div>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Flexion progression over the last 4 days</p>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Flexion progression (up to last 7 sessions)</p>
           </div>
 
         </div>
