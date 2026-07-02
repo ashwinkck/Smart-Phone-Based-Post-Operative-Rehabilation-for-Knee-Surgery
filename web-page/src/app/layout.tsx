@@ -19,7 +19,7 @@ export default function RootLayout({
           <Link href="/" style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
             Kineo<span style={{ color: 'var(--neon-pink)' }}>.</span>
           </Link>
-          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+          <div className="nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
             <Link href="/" style={{ fontWeight: 600 }}>Home</Link>
             <Link href="/doctor" style={{ fontWeight: 600 }}>Doctor Portal</Link>
             <a href="/kineo.apk" download className="btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '1rem' }}>

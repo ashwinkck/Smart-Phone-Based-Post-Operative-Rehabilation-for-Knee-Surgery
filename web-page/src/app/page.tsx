@@ -16,7 +16,7 @@ export default function Home() {
           Real-time AI pose estimation that transforms your smartphone into a clinical-grade goniometer. Track post-operative knee flexion accurately and effortlessly.
         </p>
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <div className="hero-btns" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
           <a href="/kineo.apk" download className="btn-primary">
             Download for Android
           </a>

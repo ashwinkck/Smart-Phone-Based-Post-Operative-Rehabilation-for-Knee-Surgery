@@ -226,4 +226,25 @@ p {
     align-items: flex-start !important;
     gap: 1rem;
   }
+  
+  /* Mobile Nav Wrap */
+  .glass-nav {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .nav-links {
+    gap: 1rem !important;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  /* Mobile Hero Buttons */
+  .hero-btns {
+    flex-direction: column;
+    width: 100%;
+  }
+  .hero-btns a {
+    width: 100%;
+  }
 }
