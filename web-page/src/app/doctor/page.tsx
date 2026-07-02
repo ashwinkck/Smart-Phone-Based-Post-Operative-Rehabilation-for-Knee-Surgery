@@ -86,28 +86,74 @@ export default function DoctorDashboard() {
             </div>
           </div>
 
-          <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border-glass)', height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', height: '150px', gap: '2rem', padding: '1rem' }}>
+          <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0 }}>Flexion progression (up to last 7 sessions)</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', height: '180px', gap: '2rem', padding: '1.5rem', justifyContent: 'center' }}>
               {/* Dynamic Bar Chart */}
               {patientSessions.length === 0 ? (
                 <p style={{ color: 'var(--text-secondary)' }}>Waiting for first session...</p>
               ) : (
                 patientSessions.slice(-7).map((s, idx) => {
-                  const flexionVal = parseInt(s.maxFlexion);
+                  const flexionVal = parseInt(s.maxFlexion) || 0;
                   const height = Math.min(100, Math.max(10, (flexionVal / 180) * 100));
                   return (
-                    <div key={s.id} style={{ 
-                      width: '40px', 
-                      height: `${height}%`, 
-                      background: idx === patientSessions.slice(-7).length - 1 ? 'var(--neon-green)' : 'rgba(255,255,255,0.2)', 
-                      borderRadius: '4px',
-                      boxShadow: idx === patientSessions.slice(-7).length - 1 ? '0 0 15px rgba(0,255,170,0.3)' : 'none'
-                    }}></div>
+                    <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ fontSize: '0.8rem', color: idx === patientSessions.slice(-7).length - 1 ? 'var(--neon-green)' : 'var(--text-secondary)' }}>
+                        {flexionVal}°
+                      </div>
+                      <div style={{ 
+                        width: '40px', 
+                        height: `${height}px`, 
+                        background: idx === patientSessions.slice(-7).length - 1 ? 'var(--neon-green)' : 'rgba(255,255,255,0.2)', 
+                        borderRadius: '4px',
+                        boxShadow: idx === patientSessions.slice(-7).length - 1 ? '0 0 15px rgba(0,255,170,0.3)' : 'none',
+                        transition: 'all 0.5s ease-out'
+                      }}></div>
+                    </div>
                   );
                 })
               )}
             </div>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Flexion progression (up to last 7 sessions)</p>
+          </div>
+
+          {/* Interactive Session History List */}
+          <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border-glass)', padding: '1.5rem', marginTop: '1rem' }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>Session History</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxHeight: '300px', overflowY: 'auto', paddingRight: '10px' }}>
+              {patientSessions.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)' }}>No history available yet.</p>
+              ) : (
+                [...patientSessions].reverse().map((session, index) => {
+                  const dateStr = session.timestamp?.toDate ? session.timestamp.toDate().toLocaleString() : new Date(session.timestamp?.seconds * 1000).toLocaleString();
+                  return (
+                    <div key={session.id} style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      background: index === 0 ? 'rgba(0, 255, 170, 0.1)' : 'rgba(255,255,255,0.05)',
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      borderLeft: index === 0 ? '4px solid var(--neon-green)' : '4px solid transparent',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <div>
+                        <div style={{ fontWeight: 600, color: index === 0 ? '#FFF' : 'var(--text-secondary)' }}>
+                          Session #{patientSessions.length - index}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>
+                          {dateStr !== 'Invalid Date' ? dateStr : 'Just now'}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: index === 0 ? 'var(--neon-green)' : '#FFF' }}>
+                        {session.maxFlexion}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
 
         </div>
