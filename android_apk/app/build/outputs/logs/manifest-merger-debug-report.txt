@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-25:12
-INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-25:12
+ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-26:12
+INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-26:12
+INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-26:12
+INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-26:12
 MERGED from [com.google.android.material:material:1.11.0] /home/ash/.gradle/caches/9.3.0/transforms/cae8ab5e1395863fe4c3db92b61b12e3/transformed/material-1.11.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /home/ash/.gradle/caches/9.3.0/transforms/2a84b3d4539a012e5d4690befbb708a6/transformed/constraintlayout-2.1.4/AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.camera:camera-video:1.3.1] /home/ash/.gradle/caches/9.3.0/transforms/1e68c11d5703bf9d78d9bff4791d8447/transformed/jetified-camera-video-1.3.1/AndroidManifest.xml:2:1-7:12
@@ -88,9 +88,15 @@ uses-permission#android.permission.CAMERA
 ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:6:5-65
 	android:name
 		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:6:22-62
+uses-permission#android.permission.INTERNET
+ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:7:5-67
+MERGED from [com.google.firebase:firebase-firestore:24.10.3] /home/ash/.gradle/caches/9.3.0/transforms/d0162211fc55dd669f16c2b129660818/transformed/jetified-firebase-firestore-24.10.3/AndroidManifest.xml:11:5-67
+MERGED from [com.google.firebase:firebase-firestore:24.10.3] /home/ash/.gradle/caches/9.3.0/transforms/d0162211fc55dd669f16c2b129660818/transformed/jetified-firebase-firestore-24.10.3/AndroidManifest.xml:11:5-67
+	android:name
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:7:22-64
 application
-ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:8:5-23:19
-INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:8:5-23:19
+ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:9:5-24:19
+INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:9:5-24:19
 MERGED from [com.google.android.material:material:1.11.0] /home/ash/.gradle/caches/9.3.0/transforms/cae8ab5e1395863fe4c3db92b61b12e3/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] /home/ash/.gradle/caches/9.3.0/transforms/cae8ab5e1395863fe4c3db92b61b12e3/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /home/ash/.gradle/caches/9.3.0/transforms/2a84b3d4539a012e5d4690befbb708a6/transformed/constraintlayout-2.1.4/AndroidManifest.xml:9:5-20
@@ -142,33 +148,33 @@ MERGED from [org.tensorflow:tensorflow-lite-gpu-api:2.14.0] /home/ash/.gradle/ca
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] /home/ash/.gradle/caches/9.3.0/transforms/9a59ea998ca9db762fe3e055e999a39d/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:11:9-35
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:12:9-35
 	android:label
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:10:9-34
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:11:9-34
 	tools:targetApi
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:13:9-29
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:14:9-29
 	android:allowBackup
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:9:9-35
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:10:9-35
 	android:theme
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:12:9-65
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:13:9-65
 activity#com.orthopose.tracker.MainActivity
-ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:14:9-22:20
+ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:15:9-23:20
 	android:screenOrientation
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:17:13-49
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:18:13-49
 	android:exported
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:16:13-36
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:17:13-36
 	android:name
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:15:13-41
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:16:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:18:13-21:29
+ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:19:13-22:29
 action#android.intent.action.MAIN
-ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:19:17-69
+ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:20:17-69
 	android:name
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:19:25-66
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:20:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:20:17-77
+ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:21:17-77
 	android:name
-		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:20:27-74
+		ADDED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:21:27-74
 uses-sdk
 INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml
@@ -373,10 +379,6 @@ MERGED from [io.grpc:grpc-android:1.57.2] /home/ash/.gradle/caches/9.3.0/transfo
 MERGED from [io.grpc:grpc-android:1.57.2] /home/ash/.gradle/caches/9.3.0/transforms/4ab70bc46e52f58c02d07d62a0988afd/transformed/jetified-grpc-android-1.57.2/AndroidManifest.xml:7:5-79
 	android:name
 		ADDED from [com.google.firebase:firebase-firestore:24.10.3] /home/ash/.gradle/caches/9.3.0/transforms/d0162211fc55dd669f16c2b129660818/transformed/jetified-firebase-firestore-24.10.3/AndroidManifest.xml:10:22-76
-uses-permission#android.permission.INTERNET
-ADDED from [com.google.firebase:firebase-firestore:24.10.3] /home/ash/.gradle/caches/9.3.0/transforms/d0162211fc55dd669f16c2b129660818/transformed/jetified-firebase-firestore-24.10.3/AndroidManifest.xml:11:5-67
-	android:name
-		ADDED from [com.google.firebase:firebase-firestore:24.10.3] /home/ash/.gradle/caches/9.3.0/transforms/d0162211fc55dd669f16c2b129660818/transformed/jetified-firebase-firestore-24.10.3/AndroidManifest.xml:11:22-64
 meta-data#com.google.firebase.components:com.google.firebase.firestore.FirebaseFirestoreKtxRegistrar
 ADDED from [com.google.firebase:firebase-firestore:24.10.3] /home/ash/.gradle/caches/9.3.0/transforms/d0162211fc55dd669f16c2b129660818/transformed/jetified-firebase-firestore-24.10.3/AndroidManifest.xml:17:13-19:85
 	android:value
@@ -502,8 +504,8 @@ ADDED from [org.tensorflow:tensorflow-lite-gpu-api:2.14.0] /home/ash/.gradle/cac
 	android:name
 		ADDED from [org.tensorflow:tensorflow-lite-gpu-api:2.14.0] /home/ash/.gradle/caches/9.3.0/transforms/9979c1b162d9b64aaf699b6a411b94ae/transformed/jetified-tensorflow-lite-gpu-api-2.14.0/AndroidManifest.xml:9:13-40
 uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
-IMPLIED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-25:12 reason: org.tensorflow.lite has a targetSdkVersion < 4
+IMPLIED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-26:12 reason: org.tensorflow.lite has a targetSdkVersion < 4
 uses-permission#android.permission.READ_PHONE_STATE
-IMPLIED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-25:12 reason: org.tensorflow.lite has a targetSdkVersion < 4
+IMPLIED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-26:12 reason: org.tensorflow.lite has a targetSdkVersion < 4
 uses-permission#android.permission.READ_EXTERNAL_STORAGE
-IMPLIED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-25:12 reason: org.tensorflow.lite requested WRITE_EXTERNAL_STORAGE
+IMPLIED from /home/ash/Projects/Smart-Phone-Based-Post-Operative-Rehabilation-for-Knee-Surgery/android_apk/app/src/main/AndroidManifest.xml:2:1-26:12 reason: org.tensorflow.lite requested WRITE_EXTERNAL_STORAGE

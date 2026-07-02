@@ -13,11 +13,11 @@
         android:required="true" />
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
     <!-- <uses-sdk android:minSdkVersion="14" /> -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
 
     <permission
         android:name="com.orthopose.tracker.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -35,6 +35,7 @@
         android:extractNativeLibs="false"
         android:label="OrthoPose"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar" >
         <activity
             android:name="com.orthopose.tracker.MainActivity"
