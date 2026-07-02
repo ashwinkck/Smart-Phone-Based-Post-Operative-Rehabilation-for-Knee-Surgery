@@ -4,42 +4,40 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import androidx.camera.core.ImageProxy
-import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.CompatibilityList
 import org.tensorflow.lite.gpu.GpuDelegate
-import org.tensorflow.lite.support.common.FileUtil
-import org.tensorflow.lite.support.image.ImageProcessor
-import org.tensorflow.lite.support.image.TensorImage
-import org.tensorflow.lite.support.image.ops.ResizeOp
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
+import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.nio.channels.FileChannel
 
 class PoseEstimator(context: Context) {
 
     private var interpreter: Interpreter
-    private val modelPath = "yolov8n-pose.tflite" // The FP32 model we exported
+    private val modelPath = "yolov8n-pose.tflite"
     private val inputSize = 320
-    private val outputSize = 56 * 2100 // 1x56x2100 for 320 imgsz
     
     init {
         val compatList = CompatibilityList()
         val options = Interpreter.Options()
 
         if(compatList.isDelegateSupportedOnThisDevice) {
-            // Enable hardware acceleration via GPU Delegate
             val delegateOptions = compatList.bestOptionsForThisDevice
-            // Force FP16 precision at runtime for the FP32 model for 2x faster performance
             delegateOptions.setQuantizedModelsAllowed(false)
             options.addDelegate(GpuDelegate(delegateOptions))
             options.setAllowFp16PrecisionForFp32(true) 
         } else {
-            // Fallback to CPU but use 4 threads
             options.setNumThreads(4)
         }
 
-        val model = FileUtil.loadMappedFile(context, modelPath)
+        val assetFileDescriptor = context.assets.openFd(modelPath)
+        val fileInputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
+        val fileChannel = fileInputStream.channel
+        val startOffset = assetFileDescriptor.startOffset
+        val declaredLength = assetFileDescriptor.declaredLength
+        val model = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+
         interpreter = Interpreter(model, options)
     }
 
@@ -49,44 +47,43 @@ class PoseEstimator(context: Context) {
         matrix.postRotate(imageProxy.imageInfo.rotationDegrees.toFloat())
         val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
-        val imageProcessor = ImageProcessor.Builder()
-            .add(ResizeOp(inputSize, inputSize, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-            .build()
-            
-        var tensorImage = TensorImage(DataType.FLOAT32)
-        tensorImage.load(rotatedBitmap)
-        tensorImage = imageProcessor.process(tensorImage)
+        val scaledBitmap = Bitmap.createScaledBitmap(rotatedBitmap, inputSize, inputSize, false)
         
-        // YOLOv8 requires normalized inputs (0.0 to 1.0)
         val normalizedBuffer = ByteBuffer.allocateDirect(4 * 3 * inputSize * inputSize)
         normalizedBuffer.order(ByteOrder.nativeOrder())
         val intValues = IntArray(inputSize * inputSize)
-        tensorImage.bitmap.getPixels(intValues, 0, inputSize, 0, 0, inputSize, inputSize)
+        scaledBitmap.getPixels(intValues, 0, inputSize, 0, 0, inputSize, inputSize)
         
-        for (i in 0 until inputSize) {
-            for (j in 0 until inputSize) {
-                val pixelValue = intValues[i * inputSize + j]
-                normalizedBuffer.putFloat(((pixelValue shr 16) and 0xFF) / 255.0f) // R
-                normalizedBuffer.putFloat(((pixelValue shr 8) and 0xFF) / 255.0f)  // G
-                normalizedBuffer.putFloat((pixelValue and 0xFF) / 255.0f)         // B
-            }
+        // YOLO models expect NCHW format: all Reds, then all Greens, then all Blues
+        val channelSize = inputSize * inputSize
+        for (i in 0 until channelSize) {
+            val pixelValue = intValues[i]
+            val r = ((pixelValue shr 16) and 0xFF) / 255.0f
+            val g = ((pixelValue shr 8) and 0xFF) / 255.0f
+            val b = (pixelValue and 0xFF) / 255.0f
+            
+            // Put using absolute positioning so we don't need to manually advance position
+            normalizedBuffer.putFloat(i * 4, r)
+            normalizedBuffer.putFloat((channelSize + i) * 4, g)
+            normalizedBuffer.putFloat((2 * channelSize + i) * 4, b)
         }
+        // TFLite requires the buffer position to be at 0 or fully advanced if read sequentially.
+        // Since we used absolute puts, the position is 0.
+        normalizedBuffer.position(0)
 
-        val outputBuffer = TensorBuffer.createFixedSize(intArrayOf(1, 56, 2100), DataType.FLOAT32)
+        val outputArray = Array(1) { Array(56) { FloatArray(2100) } }
         
-        // Run Inference
-        interpreter.run(normalizedBuffer, outputBuffer.buffer)
+        interpreter.run(normalizedBuffer, outputArray)
         
-        return parseOutput(outputBuffer.floatArray)
+        return parseOutput(outputArray[0])
     }
 
-    private fun parseOutput(output: FloatArray): List<FloatArray>? {
+    private fun parseOutput(output: Array<FloatArray>): List<FloatArray>? {
         var maxScore = 0f
         var bestIdx = -1
 
-        // Find highest confidence person
         for (i in 0 until 2100) {
-            val score = output[4 * 2100 + i]
+            val score = output[4][i]
             if (score > maxScore) {
                 maxScore = score
                 bestIdx = i
@@ -96,10 +93,18 @@ class PoseEstimator(context: Context) {
         if (maxScore > 0.25f) {
             val keypoints = mutableListOf<FloatArray>()
             for (k in 0 until 17) {
-                val x = output[(5 + k * 3) * 2100 + bestIdx]
-                val y = output[(5 + k * 3 + 1) * 2100 + bestIdx]
-                val vis = output[(5 + k * 3 + 2) * 2100 + bestIdx]
-                keypoints.add(floatArrayOf(x / inputSize, y / inputSize, vis))
+                var x = output[5 + k * 3][bestIdx]
+                var y = output[5 + k * 3 + 1][bestIdx]
+                val vis = output[5 + k * 3 + 2][bestIdx]
+                
+                // Ultralytics TFLite exports can sometimes output normalized coordinates (0..1) 
+                // instead of pixel coordinates (0..320). We dynamically detect and fix this!
+                if (x > 2.0f || y > 2.0f) {
+                    x /= inputSize
+                    y /= inputSize
+                }
+                
+                keypoints.add(floatArrayOf(x, y, vis))
             }
             return keypoints
         }

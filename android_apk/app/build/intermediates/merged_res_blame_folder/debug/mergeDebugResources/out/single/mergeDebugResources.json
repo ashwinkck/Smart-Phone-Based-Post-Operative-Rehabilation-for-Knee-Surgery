@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-debug-36:/drawable_circle_button.xml.flat",
+        "source": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-main-38:/drawable/circle_button.xml"
+    },
+    {
+        "merged": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-debug-36:/drawable_circle_button_red.xml.flat",
+        "source": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-main-38:/drawable/circle_button_red.xml"
+    },
+    {
+        "merged": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-debug-36:/drawable_primary_button.xml.flat",
+        "source": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-main-38:/drawable/primary_button.xml"
+    },
+    {
+        "merged": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-debug-36:/drawable_glass_panel.xml.flat",
+        "source": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-main-38:/drawable/glass_panel.xml"
+    },
+    {
+        "merged": "com.orthopose.tracker.app-debug-36:/layout_activity_main.xml.flat",
+        "source": "com.orthopose.tracker.app-main-38:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-debug-36:/layout_activity_main.xml.flat",
+        "source": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-main-38:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-debug-36:/drawable_bottom_gradient.xml.flat",
+        "source": "/home/ash/.gradle/daemon/9.3.0/com.orthopose.tracker.app-main-38:/drawable/bottom_gradient.xml"
+    }
+]

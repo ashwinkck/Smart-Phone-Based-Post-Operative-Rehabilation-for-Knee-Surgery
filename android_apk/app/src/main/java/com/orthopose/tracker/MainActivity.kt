@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         
         viewFinder = findViewById(R.id.viewFinder)
+        viewFinder.implementationMode = androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE
         overlay = findViewById(R.id.overlay)
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
@@ -108,9 +109,16 @@ class MainActivity : AppCompatActivity() {
                 .also {
                     it.setAnalyzer(cameraExecutor) { image ->
                         if (isTracking) {
+                            val rotation = image.imageInfo.rotationDegrees
+                            val (imgW, imgH) = if (rotation == 90 || rotation == 270) {
+                                Pair(image.height, image.width)
+                            } else {
+                                Pair(image.width, image.height)
+                            }
+                            
                             val keypoints = poseEstimator.estimate(image)
                             runOnUiThread {
-                                overlay.setKeypoints(keypoints, image.width, image.height, isFrontCamera)
+                                overlay.setKeypoints(keypoints, imgW, imgH, isFrontCamera)
                                 val angles = overlay.getCalculatedAngles()
                                 if (angles != null) {
                                     tvRawAngle.text = "${angles.first}°"

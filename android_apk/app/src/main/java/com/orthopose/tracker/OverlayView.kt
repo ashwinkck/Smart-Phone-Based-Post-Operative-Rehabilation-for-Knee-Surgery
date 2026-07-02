@@ -30,20 +30,31 @@ class OverlayView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private val ANGLE_BUFFER_SIZE = 15
     private val ANGLE_THRESHOLD = 3.0f
 
-    private val linePaint = Paint().apply {
-        color = Color.WHITE
-        strokeWidth = 8f
+    private val shadowLinePaint = Paint().apply {
+        color = Color.BLACK
+        strokeWidth = 24f // Thicker than 16f
         style = Paint.Style.STROKE
+        isAntiAlias = true
+        strokeCap = Paint.Cap.ROUND
+    }
+
+    private val linePaint = Paint().apply {
+        color = Color.parseColor("#00FFAA") // Bright Neon Green
+        strokeWidth = 12f
+        style = Paint.Style.STROKE
+        isAntiAlias = true
+        strokeCap = Paint.Cap.ROUND
+    }
+
+    private val shadowPointPaint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.FILL
+        isAntiAlias = true
     }
 
     private val pointPaint = Paint().apply {
-        color = Color.RED
+        color = Color.parseColor("#FF0055") // Bright Neon Pink/Red
         style = Paint.Style.FILL
-    }
-
-    private val textPaint = Paint().apply {
-        color = Color.YELLOW
-        textSize = 50f
         isAntiAlias = true
     }
 
@@ -121,46 +132,51 @@ class OverlayView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         val p2 = smoothedKeypoints!![kIdx]
         val p3 = smoothedKeypoints!![aIdx]
 
-        if (p1[2] > 0.5f && p2[2] > 0.5f && p3[2] > 0.5f) {
-            val angle = calculateAngle(p1, p2, p3)
-            rawAngle = Math.round(angle)
+        // Always draw if points exist, ignore visibility score which might be flaky
+        val angle = calculateAngle(p1, p2, p3)
+        rawAngle = Math.round(angle)
 
-            angleBuffer.add(angle)
-            if (angleBuffer.size > ANGLE_BUFFER_SIZE) angleBuffer.removeFirst()
-            
-            if (angleBuffer.size >= 5) {
-                val sorted = angleBuffer.sorted()
-                val median = sorted[sorted.size / 2]
-                if (prevStableAngle == null || Math.abs(median - prevStableAngle!!) > ANGLE_THRESHOLD) {
-                    prevStableAngle = median
-                }
+        angleBuffer.add(angle)
+        if (angleBuffer.size > ANGLE_BUFFER_SIZE) angleBuffer.removeFirst()
+        
+        if (angleBuffer.size >= 5) {
+            val sorted = angleBuffer.sorted()
+            val median = sorted[sorted.size / 2]
+            if (prevStableAngle == null || Math.abs(median - prevStableAngle!!) > ANGLE_THRESHOLD) {
+                prevStableAngle = median
             }
-            stableAngle = Math.round(prevStableAngle ?: angle)
-
-            val mapX = { x: Float -> 
-                val scaled = x * imgWidth * scale + offsetX
-                if (isFrontCam) width - scaled else scaled 
-            }
-            val mapY = { y: Float -> y * imgHeight * scale + offsetY }
-
-            val x1 = mapX(p1[0])
-            val y1 = mapY(p1[1])
-            val x2 = mapX(p2[0])
-            val y2 = mapY(p2[1])
-            val x3 = mapX(p3[0])
-            val y3 = mapY(p3[1])
-
-            canvas.drawLine(x1, y1, x2, y2, linePaint)
-            canvas.drawLine(x2, y2, x3, y3, linePaint)
-            
-            canvas.drawCircle(x1, y1, 15f, pointPaint)
-            canvas.drawCircle(x2, y2, 15f, pointPaint)
-            canvas.drawCircle(x3, y3, 15f, pointPaint)
-
-            canvas.drawText("Raw: $rawAngle°", x2 - 50f, y2 - 40f, textPaint)
-            textPaint.color = Color.CYAN
-            canvas.drawText("Stable: $stableAngle°", x2 - 50f, y2 - 100f, textPaint)
-            textPaint.color = Color.YELLOW
         }
+        stableAngle = Math.round(prevStableAngle ?: angle)
+
+        val mapX = { x: Float -> 
+            val scaled = x * imgWidth * scale + offsetX
+            if (isFrontCam) width - scaled else scaled 
+        }
+        val mapY = { y: Float -> y * imgHeight * scale + offsetY }
+
+        val x1 = mapX(p1[0])
+        val y1 = mapY(p1[1])
+        val x2 = mapX(p2[0])
+        val y2 = mapY(p2[1])
+        val x3 = mapX(p3[0])
+        val y3 = mapY(p3[1])
+
+        // Draw shadow lines first
+        canvas.drawLine(x1, y1, x2, y2, shadowLinePaint)
+        canvas.drawLine(x2, y2, x3, y3, shadowLinePaint)
+
+        // Draw actual lines
+        canvas.drawLine(x1, y1, x2, y2, linePaint)
+        canvas.drawLine(x2, y2, x3, y3, linePaint)
+        
+        // Draw shadow points
+        canvas.drawCircle(x1, y1, 35f, shadowPointPaint)
+        canvas.drawCircle(x2, y2, 35f, shadowPointPaint)
+        canvas.drawCircle(x3, y3, 35f, shadowPointPaint)
+
+        // Draw actual points
+        canvas.drawCircle(x1, y1, 25f, pointPaint)
+        canvas.drawCircle(x2, y2, 25f, pointPaint)
+        canvas.drawCircle(x3, y3, 25f, pointPaint)
     }
 }
