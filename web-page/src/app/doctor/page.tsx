@@ -33,9 +33,13 @@ export default function DoctorDashboard() {
     <div className="container" style={{ padding: '2rem' }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div 
+          style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.3s ease' }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
           <img src="/logo.png" alt="Kineo Logo" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'contain' }} />
-          <h2 style={{ margin: 0 }}>Kineo.</h2>
+          <h2 style={{ margin: 0 }} className="text-gradient">Kineo.</h2>
         </div>
         <div style={{ background: 'var(--bg-panel)', padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
           Logged in as Dr. Smith

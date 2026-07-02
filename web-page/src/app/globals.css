@@ -5,6 +5,8 @@
   --bg-panel: rgba(255, 255, 255, 0.03);
   --border-glass: rgba(255, 255, 255, 0.15);
   --neon-blue: #00e5ff;
+  --neon-green: #00FFAA;
+  --neon-pink: #FF0055;
   --text-primary: #ffffff;
   --text-secondary: #cccccc;
 }
@@ -132,7 +134,7 @@ p {
 
 /* Gradients */
 .text-gradient {
-  background: linear-gradient(135deg, #ffffff, var(--neon-blue));
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-pink));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
