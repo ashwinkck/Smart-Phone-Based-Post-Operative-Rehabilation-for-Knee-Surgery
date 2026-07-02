@@ -24,10 +24,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.05), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(0, 229, 255, 0.05), transparent 25%);
-  background-size: 150vw 150vh;
-  animation: floatBg 15s ease-in-out infinite;
+    radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.15), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(0, 229, 255, 0.15), transparent 40%);
+  background-size: 300vw 300vh;
+  animation: floatBg 20s ease-in-out infinite;
 }
 
 @keyframes floatBg {
