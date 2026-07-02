@@ -32,12 +32,8 @@ export default function DoctorDashboard() {
   return (
     <div className="container" style={{ padding: '2rem' }}>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-        <div 
-          style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.3s ease' }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
+      <div className="mobile-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+        <div className="interactive-header-group" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img src="/logo.png" alt="Kineo Logo" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'contain' }} />
           <h2 style={{ margin: 0 }} className="text-gradient">Kineo.</h2>
         </div>
@@ -46,7 +42,7 @@ export default function DoctorDashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+      <div className="dashboard-layout">
         {/* Patient List Sidebar */}
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>My Patients</h3>
@@ -54,14 +50,13 @@ export default function DoctorDashboard() {
             {mockPatients.map((patient) => (
               <div 
                 key={patient.id} 
+                className="interactive-patient-card"
                 onClick={() => setSelectedPatient(patient)}
                 style={{ 
                   padding: '1rem', 
                   borderRadius: '12px', 
                   background: selectedPatient.id === patient.id ? 'rgba(255,255,255,0.08)' : 'transparent',
-                  border: `1px solid ${selectedPatient.id === patient.id ? 'rgba(255,255,255,0.2)' : 'transparent'}`,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  border: `1px solid ${selectedPatient.id === patient.id ? 'rgba(255,255,255,0.2)' : 'transparent'}`
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
@@ -81,19 +76,19 @@ export default function DoctorDashboard() {
             <p style={{ color: 'var(--text-secondary)' }}>Status: <span style={{ color: selectedPatient.color, fontWeight: 600 }}>{selectedPatient.status}</span></p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+          <div className="stats-grid">
+            <div className="interactive-card" style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Latest Session Max Flexion</div>
               <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--neon-blue)', textShadow: '0 0 10px rgba(0,229,255,0.3)' }}>{latestSession}</div>
             </div>
             
-            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+            <div className="interactive-card" style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Total Sessions</div>
               <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#ffffff' }}>{patientSessions.length}</div>
             </div>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column' }}>
+          <div className="interactive-card" style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0 }}>Flexion progression (up to last 7 sessions)</p>
             </div>
@@ -135,15 +130,14 @@ export default function DoctorDashboard() {
                 [...patientSessions].reverse().map((session, index) => {
                   const dateStr = session.timestamp?.toDate ? session.timestamp.toDate().toLocaleString() : new Date(session.timestamp?.seconds * 1000).toLocaleString();
                   return (
-                    <div key={session.id} style={{ 
+                    <div key={session.id} className="interactive-list-item" style={{ 
                       display: 'flex', 
                       justifyContent: 'space-between', 
                       alignItems: 'center',
                       background: index === 0 ? 'rgba(0, 229, 255, 0.05)' : 'rgba(255,255,255,0.03)',
                       padding: '1rem',
                       borderRadius: '8px',
-                      borderLeft: index === 0 ? '4px solid var(--neon-blue)' : '4px solid transparent',
-                      transition: 'all 0.3s ease'
+                      borderLeft: index === 0 ? '4px solid var(--neon-blue)' : '4px solid transparent'
                     }}>
                       <div>
                         <div style={{ fontWeight: 600, color: index === 0 ? '#ffffff' : 'var(--text-secondary)' }}>
