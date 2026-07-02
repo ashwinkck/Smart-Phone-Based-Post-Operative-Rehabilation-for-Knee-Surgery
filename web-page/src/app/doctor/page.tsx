@@ -33,7 +33,10 @@ export default function DoctorDashboard() {
     <div className="container" style={{ padding: '2rem' }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-        <h2>Doctor Dashboard</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img src="/logo.png" alt="OrthoPose Logo" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'contain' }} />
+          <h2 style={{ margin: 0 }}>Doctor Dashboard</h2>
+        </div>
         <div style={{ background: 'var(--bg-panel)', padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
           Logged in as Dr. Smith
         </div>
