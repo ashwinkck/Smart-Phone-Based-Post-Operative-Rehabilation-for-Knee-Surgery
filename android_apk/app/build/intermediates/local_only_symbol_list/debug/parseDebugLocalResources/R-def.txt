@@ -4,6 +4,7 @@ drawable bottom_gradient
 drawable circle_button
 drawable circle_button_red
 drawable glass_panel
+drawable ic_launcher
 drawable primary_button
 id anglePanel
 id btnFlip
