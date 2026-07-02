@@ -1,13 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
 
 :root {
-  --bg-dark: #09090b;
-  --bg-panel: rgba(255, 255, 255, 0.05);
-  --border-glass: rgba(255, 255, 255, 0.1);
-  --neon-green: #00FFAA;
-  --neon-pink: #FF0055;
+  --bg-dark: #000000;
+  --bg-panel: rgba(255, 255, 255, 0.03);
+  --border-glass: rgba(255, 255, 255, 0.15);
+  --neon-blue: #00e5ff;
   --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
+  --text-secondary: #cccccc;
 }
 
 * {
@@ -23,8 +22,8 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(0, 255, 170, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.08), transparent 25%);
+    radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.05), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(0, 229, 255, 0.05), transparent 25%);
 }
 
 a {
@@ -59,14 +58,14 @@ p {
   border: 1px solid var(--border-glass);
   border-radius: 24px;
   padding: 2rem;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 .glass-nav {
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(9, 9, 11, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-glass);
   z-index: 100;
@@ -81,8 +80,8 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--neon-green);
-  color: #000;
+  background: #ffffff;
+  color: #000000;
   font-weight: 700;
   padding: 1rem 2rem;
   border-radius: 12px;
@@ -90,13 +89,13 @@ p {
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 1.1rem;
-  box-shadow: 0 0 20px rgba(0, 255, 170, 0.3);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(0, 255, 170, 0.5);
-  background: #1affb5;
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+  background: #f0f0f0;
 }
 
 .btn-secondary {
@@ -116,12 +115,12 @@ p {
 
 .btn-secondary:hover {
   background: var(--bg-panel);
-  border-color: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.4);
 }
 
 /* Gradients */
 .text-gradient {
-  background: linear-gradient(135deg, var(--neon-green), var(--neon-pink));
+  background: linear-gradient(135deg, #ffffff, var(--neon-blue));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
