@@ -9,7 +9,7 @@ export default function Home() {
         
         <h1 style={{ maxWidth: '800px' }}>
           The Future of Clinical <br/>
-          <span className="text-gradient">Knee Rehabilitation</span>
+          <span className="text-gradient-blue">Knee Rehabilitation</span>
         </h1>
         
         <p style={{ maxWidth: '600px', fontSize: '1.2rem', margin: '0 auto' }}>
