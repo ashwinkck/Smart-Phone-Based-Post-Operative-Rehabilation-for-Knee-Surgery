@@ -108,7 +108,11 @@ class OverlayView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         var cosineAngle = (a.pow(2) + b.pow(2) - c.pow(2)) / (2 * a * b)
         cosineAngle = max(-1.0f, min(1.0f, cosineAngle))
-        return (acos(cosineAngle) * (180.0 / Math.PI)).toFloat()
+        
+        val internalAngle = (acos(cosineAngle) * (180.0 / Math.PI)).toFloat()
+        val clinicalAngle = 180f - internalAngle
+        
+        return max(0f, clinicalAngle)
     }
 
     override fun onDraw(canvas: Canvas) {
