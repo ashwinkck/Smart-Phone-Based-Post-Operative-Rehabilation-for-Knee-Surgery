@@ -204,8 +204,8 @@ def get_angle():
     global latest_angle, prev_stable_angle, angle_buffer
     
     return jsonify({
-        'raw_angle': latest_angle,
-        'stable_angle': prev_stable_angle,
+        'raw_angle': float(latest_angle) if latest_angle is not None else None,
+        'stable_angle': float(prev_stable_angle) if prev_stable_angle is not None else None,
         'buffer_size': len(angle_buffer),
         'leg': 'left' if current_leg_indices == [11, 13, 15] else 'right'
     })
