@@ -22,7 +22,8 @@ let angleBuffer = [];
 let prevStableAngle = null;
 let currentLegIndices = [11, 13, 15]; // Default Left Leg
 let useFrontCamera = false;
-let latestKeypoints = null; // Store latest AI results for smooth drawing
+let latestKeypoints = null; // Store latest AI results
+let smoothedKeypoints = null; // Store interpolated positions for smoothness
 let isInferencing = false;  // Prevent overlapping AI runs
 const ANGLE_BUFFER_SIZE = 15; // Shorter buffer for mobile responsiveness
 const ANGLE_THRESHOLD = 3.0;
@@ -81,6 +82,7 @@ startBtn.addEventListener('click', () => {
     angleBuffer = [];
     prevStableAngle = null;
     latestKeypoints = null;
+    smoothedKeypoints = null;
     // Kick off inference loop
     inferenceLoop();
 });
@@ -88,6 +90,7 @@ startBtn.addEventListener('click', () => {
 stopBtn.addEventListener('click', () => {
     isTracking = false;
     latestKeypoints = null;
+    smoothedKeypoints = null;
     startBtn.disabled = false;
     stopBtn.disabled = true;
     rawAngleDisplay.textContent = '--°';
@@ -201,7 +204,8 @@ async function inferenceLoop() {
     
     isInferencing = false;
     if (isTracking) {
-        setTimeout(inferenceLoop, 10);
+        // Cap AI at ~24 FPS (41ms) to prevent mobile overheating while maintaining smooth UI
+        setTimeout(inferenceLoop, 41);
     }
 }
 
@@ -211,15 +215,29 @@ function renderLoop() {
         // 1. Draw raw video to canvas
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // 2. Draw latest known AI skeleton on top
+        // 2. Draw latest known AI skeleton on top with Lerping
         if (isTracking && latestKeypoints) {
+            
+            // Apply Lerping (Linear Interpolation) for buttery smooth nodes
+            if (!smoothedKeypoints) {
+                // Initialize if first time
+                smoothedKeypoints = latestKeypoints.map(kp => [...kp]);
+            } else {
+                const LERP_FACTOR = 0.25; // 0.25 gives a nice smooth slide without too much lag
+                for (let k = 0; k < 17; k++) {
+                    smoothedKeypoints[k][0] += (latestKeypoints[k][0] - smoothedKeypoints[k][0]) * LERP_FACTOR;
+                    smoothedKeypoints[k][1] += (latestKeypoints[k][1] - smoothedKeypoints[k][1]) * LERP_FACTOR;
+                    smoothedKeypoints[k][2] = latestKeypoints[k][2]; // visibility
+                }
+            }
+
             const h_idx = currentLegIndices[0];
             const k_idx = currentLegIndices[1];
             const a_idx = currentLegIndices[2];
             
-            const p1 = latestKeypoints[h_idx];
-            const p2 = latestKeypoints[k_idx];
-            const p3 = latestKeypoints[a_idx];
+            const p1 = smoothedKeypoints[h_idx];
+            const p2 = smoothedKeypoints[k_idx];
+            const p3 = smoothedKeypoints[a_idx];
             
             if (p1[2] > 0.5 && p2[2] > 0.5 && p3[2] > 0.5) {
                 const angle = calculateAngle(p1, p2, p3);
