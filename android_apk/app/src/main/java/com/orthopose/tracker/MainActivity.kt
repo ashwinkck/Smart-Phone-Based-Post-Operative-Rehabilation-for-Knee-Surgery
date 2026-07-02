@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity() {
             btnStop.isEnabled = false
             
             if (sessionMaxFlexion > 0) {
+                Toast.makeText(this@MainActivity, "Uploading session ($sessionMaxFlexion°)...", Toast.LENGTH_SHORT).show()
                 val db = FirebaseFirestore.getInstance()
                 val session = hashMapOf(
                     "patientId" to 1,
@@ -78,12 +79,17 @@ class MainActivity : AppCompatActivity() {
                     "maxFlexion" to "${sessionMaxFlexion}° Flexion"
                 )
                 db.collection("sessions").add(session)
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Session saved to cloud!", Toast.LENGTH_SHORT).show()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this@MainActivity, "Success! Saved to Cloud.", Toast.LENGTH_LONG).show()
+                        } else {
+                            val errorMsg = task.exception?.message ?: "Unknown error"
+                            Toast.makeText(this@MainActivity, "Failed: $errorMsg", Toast.LENGTH_LONG).show()
+                            Log.e("Firebase", "Error uploading", task.exception)
+                        }
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(this, "Failed to save session", Toast.LENGTH_SHORT).show()
-                    }
+            } else {
+                Toast.makeText(this@MainActivity, "No angle tracked, skipped upload.", Toast.LENGTH_SHORT).show()
             }
 
             overlay.clear()
