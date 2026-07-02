@@ -1,6 +1,6 @@
 // Configuration
-const MODEL_URL = './yolov8n-pose-320.onnx';
-const INPUT_SHAPE = [1, 3, 320, 320];
+const MODEL_URL = './yolov8n-pose.onnx';
+const INPUT_SHAPE = [1, 3, 640, 640];
 const CONFIDENCE_THRESHOLD = 0.25;
 
 // DOM Elements
@@ -22,6 +22,8 @@ let angleBuffer = [];
 let prevStableAngle = null;
 let currentLegIndices = [11, 13, 15]; // Default Left Leg
 let useFrontCamera = false;
+let latestKeypoints = null; // Store latest AI results for smooth drawing
+let isInferencing = false;  // Prevent overlapping AI runs
 const ANGLE_BUFFER_SIZE = 15; // Shorter buffer for mobile responsiveness
 const ANGLE_THRESHOLD = 3.0;
 
@@ -31,8 +33,8 @@ async function init() {
     statusAlert.textContent = 'Loading AI Model (this may take a moment)...';
     
     try {
-        // Load the ONNX model using WebGPU or WebGL for much faster performance
-        session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['webgpu', 'webgl', 'wasm'] });
+        // Load the ONNX model using WASM (most stable across all Android devices)
+        session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['wasm'] });
         statusAlert.style.display = 'none';
         startBtn.disabled = false;
         
@@ -78,10 +80,14 @@ startBtn.addEventListener('click', () => {
     stopBtn.disabled = false;
     angleBuffer = [];
     prevStableAngle = null;
+    latestKeypoints = null;
+    // Kick off inference loop
+    inferenceLoop();
 });
 
 stopBtn.addEventListener('click', () => {
     isTracking = false;
+    latestKeypoints = null;
     startBtn.disabled = false;
     stopBtn.disabled = true;
     rawAngleDisplay.textContent = '--°';
@@ -106,21 +112,21 @@ document.querySelectorAll('input[name="leg-choice"]').forEach(radio => {
 // Preprocessing
 function preprocess(imageData) {
     const { data, width, height } = imageData;
-    // We need [1, 3, 320, 320] Float32Array
-    const float32Data = new Float32Array(3 * 320 * 320);
+    // We need [1, 3, 640, 640] Float32Array
+    const float32Data = new Float32Array(3 * 640 * 640);
     
-    // Scale image to 320x320 using basic nearest neighbor for speed
-    const x_scale = width / 320;
-    const y_scale = height / 320;
+    // Scale image to 640x640 using basic nearest neighbor for speed
+    const x_scale = width / 640;
+    const y_scale = height / 640;
     
     for (let c = 0; c < 3; c++) {
-        for (let y = 0; y < 320; y++) {
-            for (let x = 0; x < 320; x++) {
+        for (let y = 0; y < 640; y++) {
+            for (let x = 0; x < 640; x++) {
                 const orig_x = Math.floor(x * x_scale);
                 const orig_y = Math.floor(y * y_scale);
                 const i = (orig_y * width + orig_x) * 4;
                 // Normalize 0-1
-                float32Data[c * 320 * 320 + y * 320 + x] = data[i + c] / 255.0;
+                float32Data[c * 640 * 640 + y * 640 + x] = data[i + c] / 255.0;
             }
         }
     }
@@ -141,123 +147,127 @@ function calculateAngle(a, b, c) {
     return Math.acos(cosineAngle) * (180.0 / Math.PI);
 }
 
-// Main Render Loop
-async function renderLoop() {
+// Separate Inference Loop (Runs asynchronously so it doesn't block camera)
+async function inferenceLoop() {
+    if (!isTracking || !session || isInferencing) return;
+    
+    isInferencing = true;
+    try {
+        // 1. Grab current frame
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        const tensor = preprocess(imgData);
+        
+        // 2. Run Inference
+        const results = await session.run({ images: tensor });
+        const output = results[Object.keys(results)[0]].data; // shape [1, 56, 8400]
+        
+        // 3. Find the best person
+        let maxScore = 0;
+        let bestIdx = -1;
+        for (let i = 0; i < 8400; i++) {
+            const score = output[4 * 8400 + i];
+            if (score > maxScore) {
+                maxScore = score;
+                bestIdx = i;
+            }
+        }
+        
+        if (maxScore > CONFIDENCE_THRESHOLD) {
+            const keypoints = [];
+            for (let k = 0; k < 17; k++) {
+                const x = output[(5 + k*3) * 8400 + bestIdx];
+                const y = output[(5 + k*3 + 1) * 8400 + bestIdx];
+                const vis = output[(5 + k*3 + 2) * 8400 + bestIdx];
+                
+                const mappedX = (x / 640) * tempCanvas.width;
+                const mappedY = (y / 640) * tempCanvas.height;
+                keypoints.push([mappedX, mappedY, vis]);
+            }
+            latestKeypoints = keypoints;
+        }
+        // If we want it to blink out when losing tracking, uncomment this:
+        // else { latestKeypoints = null; } 
+        // Keeping it commented means it will "hold" the last known pose if it briefly loses tracking
+        
+    } catch (e) {
+        console.error("Inference Error:", e);
+    }
+    
+    isInferencing = false;
+    if (isTracking) {
+        setTimeout(inferenceLoop, 10);
+    }
+}
+
+// Main Render Loop (Runs at 60 FPS purely for drawing)
+function renderLoop() {
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
         // 1. Draw raw video to canvas
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        if (isTracking && session) {
-            try {
-                // 2. Preprocess
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const tensor = preprocess(imgData);
+        // 2. Draw latest known AI skeleton on top
+        if (isTracking && latestKeypoints) {
+            const h_idx = currentLegIndices[0];
+            const k_idx = currentLegIndices[1];
+            const a_idx = currentLegIndices[2];
+            
+            const p1 = latestKeypoints[h_idx];
+            const p2 = latestKeypoints[k_idx];
+            const p3 = latestKeypoints[a_idx];
+            
+            if (p1[2] > 0.5 && p2[2] > 0.5 && p3[2] > 0.5) {
+                const angle = calculateAngle(p1, p2, p3);
+                const roundedAngle = Math.round(angle);
                 
-                // 3. Run Inference
-                const results = await session.run({ images: tensor });
-                const output = results[Object.keys(results)[0]].data; // shape [1, 56, 2100]
+                ctx.beginPath();
+                ctx.moveTo(p1[0], p1[1]);
+                ctx.lineTo(p2[0], p2[1]);
+                ctx.lineTo(p3[0], p3[1]);
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 4;
+                ctx.stroke();
                 
-                // 4. Find the best person (max class score at index 4)
-                let maxScore = 0;
-                let bestIdx = -1;
-                for (let i = 0; i < 2100; i++) {
-                    const score = output[4 * 2100 + i];
-                    if (score > maxScore) {
-                        maxScore = score;
-                        bestIdx = i;
+                [p1, p2, p3].forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p[0], p[1], 8, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#FF0000';
+                    ctx.fill();
+                });
+                
+                rawAngleDisplay.textContent = `${roundedAngle}°`;
+                
+                angleBuffer.push(angle);
+                if (angleBuffer.length > ANGLE_BUFFER_SIZE) {
+                    angleBuffer.shift();
+                }
+                
+                if (angleBuffer.length >= 5) {
+                    const sorted = [...angleBuffer].sort((a,b) => a-b);
+                    const median = sorted[Math.floor(sorted.length/2)];
+                    
+                    if (prevStableAngle === null || Math.abs(median - prevStableAngle) > ANGLE_THRESHOLD) {
+                        prevStableAngle = median;
                     }
                 }
                 
-                if (maxScore > CONFIDENCE_THRESHOLD) {
-                    // Extract keypoints
-                    const keypoints = [];
-                    for (let k = 0; k < 17; k++) {
-                        const x = output[(5 + k*3) * 2100 + bestIdx];
-                        const y = output[(5 + k*3 + 1) * 2100 + bestIdx];
-                        const vis = output[(5 + k*3 + 2) * 2100 + bestIdx];
-                        
-                        // Map back from 320x320 to actual canvas size
-                        const mappedX = (x / 320) * canvas.width;
-                        const mappedY = (y / 320) * canvas.height;
-                        keypoints.push([mappedX, mappedY, vis]);
-                    }
-                    
-                    // 5. Draw Target Leg
-                    const h_idx = currentLegIndices[0];
-                    const k_idx = currentLegIndices[1];
-                    const a_idx = currentLegIndices[2];
-                    
-                    const p1 = keypoints[h_idx];
-                    const p2 = keypoints[k_idx];
-                    const p3 = keypoints[a_idx];
-                    
-                    if (p1[2] > 0.5 && p2[2] > 0.5 && p3[2] > 0.5) {
-                        // Calculate angle
-                        const angle = calculateAngle(p1, p2, p3);
-                        const roundedAngle = Math.round(angle);
-                        
-                        // Draw Lines
-                        ctx.beginPath();
-                        ctx.moveTo(p1[0], p1[1]);
-                        ctx.lineTo(p2[0], p2[1]);
-                        ctx.lineTo(p3[0], p3[1]);
-                        ctx.strokeStyle = '#FFFFFF';
-                        ctx.lineWidth = 4;
-                        ctx.stroke();
-                        
-                        // Draw Points
-                        [p1, p2, p3].forEach(p => {
-                            ctx.beginPath();
-                            ctx.arc(p[0], p[1], 8, 0, 2 * Math.PI);
-                            ctx.fillStyle = '#FF0000';
-                            ctx.fill();
-                        });
-                        
-                        // Update UI
-                        rawAngleDisplay.textContent = `${roundedAngle}°`;
-                        
-                        angleBuffer.push(angle);
-                        if (angleBuffer.length > ANGLE_BUFFER_SIZE) {
-                            angleBuffer.shift();
-                        }
-                        
-                        if (angleBuffer.length >= 5) {
-                            // Compute median
-                            const sorted = [...angleBuffer].sort((a,b) => a-b);
-                            const median = sorted[Math.floor(sorted.length/2)];
-                            
-                            if (prevStableAngle === null || Math.abs(median - prevStableAngle) > ANGLE_THRESHOLD) {
-                                prevStableAngle = median;
-                            }
-                        }
-                        
-                        if (prevStableAngle !== null) {
-                            stableAngleDisplay.textContent = `${Math.round(prevStableAngle)}°`;
-                            
-                            // Draw Text on canvas
-                            ctx.font = '20px Arial';
-                            ctx.fillStyle = '#FFFF00';
-                            ctx.fillText(`Raw: ${roundedAngle}°`, p2[0] - 30, p2[1] - 20);
-                            ctx.fillStyle = '#00FFFF';
-                            ctx.fillText(`Stable: ${Math.round(prevStableAngle)}°`, p2[0] - 30, p2[1] - 45);
-                        }
-                    }
+                if (prevStableAngle !== null) {
+                    stableAngleDisplay.textContent = `${Math.round(prevStableAngle)}°`;
+                    ctx.font = '20px Arial';
+                    ctx.fillStyle = '#FFFF00';
+                    ctx.fillText(`Raw: ${roundedAngle}°`, p2[0] - 30, p2[1] - 20);
+                    ctx.fillStyle = '#00FFFF';
+                    ctx.fillText(`Stable: ${Math.round(prevStableAngle)}°`, p2[0] - 30, p2[1] - 45);
                 }
-            } catch (e) {
-                console.error("Inference Error:", e);
-                // Pause tracking on error to prevent console spam
-                isTracking = false;
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-                alert("Error during processing. See console for details.");
             }
         }
     }
-    
-    // We intentionally delay the next frame slightly to prevent locking up the mobile browser thread completely
-    setTimeout(() => {
-        requestAnimationFrame(renderLoop);
-    }, 10); 
+    requestAnimationFrame(renderLoop);
 }
 
 // Start everything
