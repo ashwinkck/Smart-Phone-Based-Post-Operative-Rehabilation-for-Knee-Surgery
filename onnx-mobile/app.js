@@ -1,6 +1,6 @@
 // Configuration
-const MODEL_URL = './yolov8n-pose.onnx';
-const INPUT_SHAPE = [1, 3, 640, 640];
+const MODEL_URL = './yolov8n-pose-320.onnx';
+const INPUT_SHAPE = [1, 3, 320, 320];
 const CONFIDENCE_THRESHOLD = 0.25;
 
 // DOM Elements
@@ -106,21 +106,21 @@ document.querySelectorAll('input[name="leg-choice"]').forEach(radio => {
 // Preprocessing
 function preprocess(imageData) {
     const { data, width, height } = imageData;
-    // We need [1, 3, 640, 640] Float32Array
-    const float32Data = new Float32Array(3 * 640 * 640);
+    // We need [1, 3, 320, 320] Float32Array
+    const float32Data = new Float32Array(3 * 320 * 320);
     
-    // Scale image to 640x640 using basic nearest neighbor for speed
-    const x_scale = width / 640;
-    const y_scale = height / 640;
+    // Scale image to 320x320 using basic nearest neighbor for speed
+    const x_scale = width / 320;
+    const y_scale = height / 320;
     
     for (let c = 0; c < 3; c++) {
-        for (let y = 0; y < 640; y++) {
-            for (let x = 0; x < 640; x++) {
+        for (let y = 0; y < 320; y++) {
+            for (let x = 0; x < 320; x++) {
                 const orig_x = Math.floor(x * x_scale);
                 const orig_y = Math.floor(y * y_scale);
                 const i = (orig_y * width + orig_x) * 4;
                 // Normalize 0-1
-                float32Data[c * 640 * 640 + y * 640 + x] = data[i + c] / 255.0;
+                float32Data[c * 320 * 320 + y * 320 + x] = data[i + c] / 255.0;
             }
         }
     }
@@ -155,13 +155,13 @@ async function renderLoop() {
                 
                 // 3. Run Inference
                 const results = await session.run({ images: tensor });
-                const output = results[Object.keys(results)[0]].data; // shape [1, 56, 8400]
+                const output = results[Object.keys(results)[0]].data; // shape [1, 56, 2100]
                 
                 // 4. Find the best person (max class score at index 4)
                 let maxScore = 0;
                 let bestIdx = -1;
-                for (let i = 0; i < 8400; i++) {
-                    const score = output[4 * 8400 + i];
+                for (let i = 0; i < 2100; i++) {
+                    const score = output[4 * 2100 + i];
                     if (score > maxScore) {
                         maxScore = score;
                         bestIdx = i;
@@ -172,13 +172,13 @@ async function renderLoop() {
                     // Extract keypoints
                     const keypoints = [];
                     for (let k = 0; k < 17; k++) {
-                        const x = output[(5 + k*3) * 8400 + bestIdx];
-                        const y = output[(5 + k*3 + 1) * 8400 + bestIdx];
-                        const vis = output[(5 + k*3 + 2) * 8400 + bestIdx];
+                        const x = output[(5 + k*3) * 2100 + bestIdx];
+                        const y = output[(5 + k*3 + 1) * 2100 + bestIdx];
+                        const vis = output[(5 + k*3 + 2) * 2100 + bestIdx];
                         
-                        // Map back from 640x640 to actual canvas size
-                        const mappedX = (x / 640) * canvas.width;
-                        const mappedY = (y / 640) * canvas.height;
+                        // Map back from 320x320 to actual canvas size
+                        const mappedX = (x / 320) * canvas.width;
+                        const mappedY = (y / 320) * canvas.height;
                         keypoints.push([mappedX, mappedY, vis]);
                     }
                     
