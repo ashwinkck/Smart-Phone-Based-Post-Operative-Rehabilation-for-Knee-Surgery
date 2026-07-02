@@ -150,9 +150,8 @@ class MainActivity : AppCompatActivity() {
                                 if (angles != null) {
                                     tvRawAngle.text = "${angles.first}°"
                                     tvStableAngle.text = "${angles.second}°"
-                                    if (angles.second > sessionMaxFlexion) {
-                                        sessionMaxFlexion = angles.second
-                                    }
+                                    // Store the most recent stable angle
+                                    sessionMaxFlexion = angles.second
                                 }
                             }
                         }
