@@ -31,28 +31,28 @@ export default function Home() {
         <h2 style={{ textAlign: 'center', marginBottom: '4rem' }}>Clinical-Grade Tracking, <br/>On Your Device</h2>
         
         <div className="grid-2">
-          <div className="glass-panel" style={{ borderLeft: '4px solid var(--neon-green)' }}>
+          <div className="glass-panel interactive-card" style={{ borderLeft: '4px solid var(--neon-blue)' }}>
             <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Zero Latency AI</h3>
             <p>
               Powered by an optimized YOLOv8 neural network running directly on your smartphone's GPU. No cloud processing, no delays, complete privacy.
             </p>
           </div>
           
-          <div className="glass-panel" style={{ borderLeft: '4px solid var(--neon-pink)' }}>
+          <div className="glass-panel interactive-card" style={{ borderLeft: '4px solid #ffffff' }}>
             <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Clinical Flexion Protocol</h3>
             <p>
               Automatically calculates internal and clinical knee angles. Instantly differentiate between a straight leg (0°) and full flexion with advanced stabilization algorithms.
             </p>
           </div>
           
-          <div className="glass-panel" style={{ borderLeft: '4px solid #fff' }}>
+          <div className="glass-panel interactive-card" style={{ borderLeft: '4px solid var(--text-secondary)' }}>
             <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Physician Syncing</h3>
             <p>
               Kineo seamlessly integrates with the Doctor Portal, allowing orthopedic surgeons to monitor daily rehabilitation progress remotely.
             </p>
           </div>
 
-          <div className="glass-panel" style={{ borderLeft: '4px solid var(--neon-green)' }}>
+          <div className="glass-panel interactive-card" style={{ borderLeft: '4px solid var(--neon-blue)' }}>
             <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>No Hardware Required</h3>
             <p>
               Ditch the expensive wearables and manual goniometers. All you need is the Kineo Android app and a clear view of your leg.
