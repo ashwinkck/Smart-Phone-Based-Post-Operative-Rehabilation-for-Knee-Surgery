@@ -98,7 +98,7 @@ class OverlayView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     }
 
     fun getCalculatedAngles(): Pair<Int, Int>? {
-        return if (latestKeypoints != null && prevStableAngle != null) Pair(rawAngle, stableAngle) else null
+        return if (latestKeypoints != null) Pair(rawAngle, stableAngle) else null
     }
 
     private fun calculateAngle(p1: FloatArray, p2: FloatArray, p3: FloatArray): Float {
