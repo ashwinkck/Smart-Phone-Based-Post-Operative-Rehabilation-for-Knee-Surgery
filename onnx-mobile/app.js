@@ -9,6 +9,7 @@ const canvas = document.getElementById('output-canvas');
 const ctx = canvas.getContext('2d');
 const startBtn = document.getElementById('start-btn');
 const stopBtn = document.getElementById('stop-btn');
+const flipCameraBtn = document.getElementById('flip-camera-btn');
 const rawAngleDisplay = document.getElementById('raw-angle');
 const stableAngleDisplay = document.getElementById('stable-angle');
 const statusAlert = document.getElementById('status-alert');
@@ -20,6 +21,7 @@ let animationId = null;
 let angleBuffer = [];
 let prevStableAngle = null;
 let currentLegIndices = [11, 13, 15]; // Default Left Leg
+let useFrontCamera = false;
 const ANGLE_BUFFER_SIZE = 15; // Shorter buffer for mobile responsiveness
 const ANGLE_THRESHOLD = 3.0;
 
@@ -29,8 +31,8 @@ async function init() {
     statusAlert.textContent = 'Loading AI Model (this may take a moment)...';
     
     try {
-        // Load the ONNX model
-        session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['wasm'] });
+        // Load the ONNX model using WebGPU or WebGL for much faster performance
+        session = await ort.InferenceSession.create(MODEL_URL, { executionProviders: ['webgpu', 'webgl', 'wasm'] });
         statusAlert.style.display = 'none';
         startBtn.disabled = false;
         
@@ -46,8 +48,11 @@ async function init() {
 
 async function startCamera() {
     try {
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+        }
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 640 } }
+            video: { facingMode: useFrontCamera ? 'user' : 'environment', width: { ideal: 640 }, height: { ideal: 640 } }
         });
         video.srcObject = stream;
         await new Promise(resolve => {
@@ -81,6 +86,11 @@ stopBtn.addEventListener('click', () => {
     stopBtn.disabled = true;
     rawAngleDisplay.textContent = '--°';
     stableAngleDisplay.textContent = '--°';
+});
+
+flipCameraBtn.addEventListener('click', async () => {
+    useFrontCamera = !useFrontCamera;
+    await startCamera();
 });
 
 document.querySelectorAll('input[name="leg-choice"]').forEach(radio => {
@@ -247,7 +257,7 @@ async function renderLoop() {
     // We intentionally delay the next frame slightly to prevent locking up the mobile browser thread completely
     setTimeout(() => {
         requestAnimationFrame(renderLoop);
-    }, 100); 
+    }, 10); 
 }
 
 // Start everything
