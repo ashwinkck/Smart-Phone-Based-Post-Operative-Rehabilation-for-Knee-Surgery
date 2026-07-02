@@ -1,0 +1,17 @@
+R_DEF: Internal format may change without notice
+local
+id anglePanel
+id btnFlip
+id btnStart
+id btnStop
+id controlsPanel
+id overlay
+id rbLeftLeg
+id rbRightLeg
+id rgLegSelection
+id tvRawAngle
+id tvStableAngle
+id viewFinder
+layout activity_main
+string app_name
+style Theme.AppCompat.Light.NoActionBar

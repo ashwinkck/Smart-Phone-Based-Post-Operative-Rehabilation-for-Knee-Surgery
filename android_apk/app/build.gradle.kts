@@ -28,9 +28,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildFeatures {
-        viewBinding = true
-    }
     aaptOptions {
         noCompress("tflite")
     }
@@ -50,7 +47,7 @@ dependencies {
     implementation("androidx.camera:camera-view:${cameraxVersion}")
 
     // TensorFlow Lite
-    implementation("org.tensorflow:tensorflow-lite:2.14.0")
-    implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite:2.12.0")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.12.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
 }

@@ -12,15 +12,25 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.orthopose.tracker.databinding.ActivityMainBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.widget.Button
+import android.widget.RadioGroup
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var poseEstimator: PoseEstimator
+    
+    private lateinit var viewFinder: androidx.camera.view.PreviewView
+    private lateinit var overlay: OverlayView
+    private lateinit var btnStart: Button
+    private lateinit var btnStop: Button
+    private lateinit var btnFlip: Button
+    private lateinit var rgLegSelection: RadioGroup
+    private lateinit var tvRawAngle: TextView
+    private lateinit var tvStableAngle: TextView
     
     private var isTracking = false
     private var isFrontCamera = false
@@ -28,37 +38,45 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
+        
+        viewFinder = findViewById(R.id.viewFinder)
+        overlay = findViewById(R.id.overlay)
+        btnStart = findViewById(R.id.btnStart)
+        btnStop = findViewById(R.id.btnStop)
+        btnFlip = findViewById(R.id.btnFlip)
+        rgLegSelection = findViewById(R.id.rgLegSelection)
+        tvRawAngle = findViewById(R.id.tvRawAngle)
+        tvStableAngle = findViewById(R.id.tvStableAngle)
 
         // Initialize Pose Estimator
         poseEstimator = PoseEstimator(this)
 
         // Setup Buttons
-        binding.btnStart.setOnClickListener {
+        btnStart.setOnClickListener {
             isTracking = true
-            binding.btnStart.isEnabled = false
-            binding.btnStop.isEnabled = true
-            binding.overlay.resetSmoothing()
+            btnStart.isEnabled = false
+            btnStop.isEnabled = true
+            overlay.resetSmoothing()
         }
 
-        binding.btnStop.setOnClickListener {
+        btnStop.setOnClickListener {
             isTracking = false
-            binding.btnStart.isEnabled = true
-            binding.btnStop.isEnabled = false
-            binding.overlay.clear()
-            binding.tvRawAngle.text = "--°"
-            binding.tvStableAngle.text = "--°"
+            btnStart.isEnabled = true
+            btnStop.isEnabled = false
+            overlay.clear()
+            tvRawAngle.text = "--°"
+            tvStableAngle.text = "--°"
         }
 
-        binding.btnFlip.setOnClickListener {
+        btnFlip.setOnClickListener {
             isFrontCamera = !isFrontCamera
             startCamera()
         }
 
-        binding.rgLegSelection.setOnCheckedChangeListener { _, checkedId ->
+        rgLegSelection.setOnCheckedChangeListener { _, checkedId ->
             isLeftLeg = checkedId == R.id.rbLeftLeg
-            binding.overlay.setTargetLeg(isLeftLeg)
+            overlay.setTargetLeg(isLeftLeg)
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -81,7 +99,7 @@ class MainActivity : AppCompatActivity() {
             val preview = Preview.Builder()
                 .build()
                 .also {
-                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                    it.setSurfaceProvider(viewFinder.surfaceProvider)
                 }
 
             val imageAnalyzer = ImageAnalysis.Builder()
@@ -92,11 +110,11 @@ class MainActivity : AppCompatActivity() {
                         if (isTracking) {
                             val keypoints = poseEstimator.estimate(image)
                             runOnUiThread {
-                                binding.overlay.setKeypoints(keypoints, image.width, image.height, isFrontCamera)
-                                val angles = binding.overlay.getCalculatedAngles()
+                                overlay.setKeypoints(keypoints, image.width, image.height, isFrontCamera)
+                                val angles = overlay.getCalculatedAngles()
                                 if (angles != null) {
-                                    binding.tvRawAngle.text = "${angles.first}°"
-                                    binding.tvStableAngle.text = "${angles.second}°"
+                                    tvRawAngle.text = "${angles.first}°"
+                                    tvStableAngle.text = "${angles.second}°"
                                 }
                             }
                         }
