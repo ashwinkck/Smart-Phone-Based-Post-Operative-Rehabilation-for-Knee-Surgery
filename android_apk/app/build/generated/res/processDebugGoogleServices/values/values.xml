@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">521149907285</string>
+    <string name="google_api_key" translatable="false">AIzaSyB69b4DZDLgpSjLB8C--Bi0TjR2k__YjsY</string>
+    <string name="google_app_id" translatable="false">1:521149907285:android:9484444f66b142e7d76fdc</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyB69b4DZDLgpSjLB8C--Bi0TjR2k__YjsY</string>
+    <string name="google_storage_bucket" translatable="false">kineo-804a1.firebasestorage.app</string>
+    <string name="project_id" translatable="false">kineo-804a1</string>
+</resources>

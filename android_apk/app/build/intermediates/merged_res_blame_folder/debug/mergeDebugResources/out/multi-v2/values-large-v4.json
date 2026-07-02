@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.orthopose.tracker.app-mergeDebugResources-34:/values-large-v4/values-large-v4.xml",
+            "outputFile": "com.orthopose.tracker.app-mergeDebugResources-38:/values-large-v4/values-large-v4.xml",
             "map": [
                 {
-                    "source": "/home/ash/.gradle/caches/9.3.0/transforms/8bd6fa915b68df78a4d5f8bf9a54ae19/transformed/material-1.11.0/res/values-large-v4/values-large-v4.xml",
+                    "source": "/home/ash/.gradle/caches/9.3.0/transforms/cae8ab5e1395863fe4c3db92b61b12e3/transformed/material-1.11.0/res/values-large-v4/values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "/home/ash/.gradle/caches/9.3.0/transforms/55c206976ffb17d3c236cda41f0d0042/transformed/appcompat-1.6.1/res/values-large-v4/values-large-v4.xml",
+                    "source": "/home/ash/.gradle/caches/9.3.0/transforms/edbe7a45cec79bf9ac765d508017ba80/transformed/appcompat-1.6.1/res/values-large-v4/values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",
